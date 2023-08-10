@@ -46,7 +46,7 @@ class ImageDocumentView(generics.GenericAPIView):
                 serializer = self.get_serializer(instance)
                 return Response(serializer.data)
             except:
-                return Response('Not found!', status=status.HTTP_404_NOT_FOUND)
+                return Response({'error':'Not found!'}, status=status.HTTP_404_NOT_FOUND)
         else:
             serializer =  self.get_serializer(self.get_queryset(), many=True)
             return Response(serializer.data)
@@ -56,7 +56,7 @@ class ImageDocumentView(generics.GenericAPIView):
         if instance:
             instance.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response('Not found!', status=status.HTTP_404_NOT_FOUND)
+        return Response({'error':'Not found!'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class PDFDocumentView(generics.GenericAPIView):
@@ -70,7 +70,7 @@ class PDFDocumentView(generics.GenericAPIView):
                 serializer = self.get_serializer(instance)
                 return Response(serializer.data)
             except:
-                return Response('Not found!', status=status.HTTP_404_NOT_FOUND)
+                return Response({'error':'Not found!'}, status=status.HTTP_404_NOT_FOUND)
         else:
             serializer =  self.get_serializer(self.get_queryset(), many=True)
             return Response(serializer.data)
@@ -80,7 +80,7 @@ class PDFDocumentView(generics.GenericAPIView):
         if instance:
             instance.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response('Not found!', status=status.HTTP_404_NOT_FOUND)
+        return Response({'error':'Not found!'}, status=status.HTTP_404_NOT_FOUND)
 
 def encode_img(img):
     img.show()
