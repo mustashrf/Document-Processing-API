@@ -33,3 +33,7 @@ class PDFDocSerializer(serializers.ModelSerializer):
 class DocumentUploadSerializer(serializers.Serializer):
     file_type = serializers.ChoiceField(choices=FILE_TYPES)
     base64_data = serializers.CharField()
+
+class DocumentProcessingSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    rotation_angle = serializers.IntegerField(required=False)

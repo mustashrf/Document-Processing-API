@@ -80,3 +80,28 @@ class PDFDocumentView(generics.GenericAPIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response('Not found!', status=status.HTTP_404_NOT_FOUND)
 
+def rotate_img():
+    pass
+
+def convert_pdf_to_img():
+    pass
+
+def encode_img():
+    pass
+
+class DocumentProcessingView(APIView):
+    def post(self, request):
+        path = request.path
+        id = request.data['id']
+        if 'rotate' in path:
+            rotation_angle = request.data.get('rotation_angle') or None
+            if rotation_angle is None:
+                return Response('Please provide the rotation angle.', status=status.HTTP_400_BAD_REQUEST)
+            # rotate image
+        elif 'convert-pdf-to-image' in path:
+            # convert_pdf_to_image
+            pass
+        serializer = DocumentProcessingSerializer(data=request.data)
+        if serializer.is_valid():
+            print(serializer.data)
+        return Response('OK')
