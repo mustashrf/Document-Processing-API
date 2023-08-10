@@ -36,4 +36,4 @@ class DocumentUploadSerializer(serializers.Serializer):
 
 class DocumentProcessingSerializer(serializers.Serializer):
     id = serializers.IntegerField()
-    rotation_angle = serializers.IntegerField(required=False)
+    rotation_angle = serializers.DecimalField(max_digits=5, decimal_places=2, required=False)
