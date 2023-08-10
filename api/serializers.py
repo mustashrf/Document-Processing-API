@@ -31,5 +31,5 @@ class PDFDocSerializer(serializers.ModelSerializer):
         }
 
 class DocumentUploadSerializer(serializers.Serializer):
-    # To be implemented
-    pass
+    file_type = serializers.ChoiceField(choices=FILE_TYPES)
+    base64_data = serializers.CharField()

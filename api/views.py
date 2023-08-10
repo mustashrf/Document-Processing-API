@@ -4,10 +4,34 @@ from .models import *
 from .serializers import *
 from rest_framework.response import Response
 from rest_framework import status
+import base64
+from django.core.files.base import ContentFile
 
 class DocumentUploadView(APIView):
-    # To be implemented
-    pass
+    def post(self, request):
+        serializer = DocumentUploadSerializer(data=request.data)
+        if serializer.is_valid():
+            file_type = serializer.data['file_type']
+            base64_data = serializer.data['base64_data']
+            try:
+                decoded_data = base64.b64decode(base64_data)
+                content_file = ContentFile(decoded_data, name=f'uploaded.{"png" if file_type=="img" else "pdf"}')
+
+                file_data = {'file': content_file}
+
+                if file_type == 'img':
+                    serializer = ImageDocSerializer(data=file_data)
+                else:
+                    serializer = PDFDocSerializer(data=file_data)
+
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response({"message": "File uploaded successfully"}, status=status.HTTP_200_OK)
+
+            except Exception as e:
+                return Response({"error": f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ImageDocumentView(generics.GenericAPIView):
     queryset = ImageDocument.objects.all()
