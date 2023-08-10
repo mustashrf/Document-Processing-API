@@ -83,7 +83,7 @@ class PDFDocumentView(generics.GenericAPIView):
         return Response('Not found!', status=status.HTTP_404_NOT_FOUND)
 
 def encode_img(img):
-    # img.show()
+    img.show()
     buffered = io.BytesIO()
     img.save(buffered, format="png")
     encoded_img = base64.b64encode(buffered.getvalue())
@@ -94,9 +94,17 @@ def rotate_img(instance, rotation_angle):
     rotated_img = img.rotate(rotation_angle, expand=True)
     return encode_img(rotated_img)
 
-def convert_pdf_to_img():
-    pass
-
+def convert_pdf_to_img(instance):
+    pdf_file = fitz.open(instance.file.path)
+    encoded_images_list = []
+    for page_num, page in enumerate(pdf_file):
+        pix = page.get_pixmap()
+        encoded_img = encode_img(Image.frombytes("RGB", [pix.width, pix.height], pix.samples))
+        encoded_images_list.append({
+            'page_number':page_num + 1,
+            'image': encoded_img
+        })
+    return encoded_images_list
 
 class DocumentProcessingView(APIView):
     def post(self, request):
@@ -111,14 +119,17 @@ class DocumentProcessingView(APIView):
                     return Response({'error': 'Please provide the rotation angle.'}, status=status.HTTP_400_BAD_REQUEST)
                 try:
                     instance = ImageDocument.objects.get(id=id)
-                    if instance is None:
-                        return Response('Not found!', status=status.HTTP_404_NOT_FOUND)
                     rotated_img = rotate_img(instance, rotation_angle)
                     return Response({'rotated_image':rotated_img}, status=status.HTTP_200_OK)
-                except:
-                    return Response({'error':'Not found!'}, status=status.HTTP_404_NOT_FOUND)
+                except Exception as e:
+                    return Response({'error':f'{e}'}, status=status.HTTP_404_NOT_FOUND)
 
             elif 'convert-pdf-to-image' in path:
-                pass
+                try:
+                    instance = PDFDocument.objects.get(id=id)
+                    encoded_images = convert_pdf_to_img(instance)
+                    return Response({'encoded_images': encoded_images}, status=status.HTTP_200_OK)
+                except Exception as e:
+                    return Response({'error':f'{e}'}, status=status.HTTP_404_NOT_FOUND)
 
         return Response({'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
