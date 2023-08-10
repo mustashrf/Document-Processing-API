@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from rest_framework import status
 import base64
 from django.core.files.base import ContentFile
+from PIL import Image
+import io
 
 class DocumentUploadView(APIView):
     def post(self, request):
@@ -80,28 +82,38 @@ class PDFDocumentView(generics.GenericAPIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response('Not found!', status=status.HTTP_404_NOT_FOUND)
 
-def rotate_img():
-    pass
+def encode_img(img):
+    # img.show()
+    buffered = io.BytesIO()
+    img.save(buffered, format="png")
+    encoded_img = base64.b64encode(buffered.getvalue())
+    return encoded_img
+
+def rotate_img(img_id, rotation_angle):
+    instance = ImageDocument.objects.get(id=img_id)
+    img = Image.open(instance.file)
+    rotated_img = img.rotate(rotation_angle, expand=True)
+    return encode_img(rotated_img)
 
 def convert_pdf_to_img():
     pass
 
-def encode_img():
-    pass
 
 class DocumentProcessingView(APIView):
     def post(self, request):
-        path = request.path
-        id = request.data['id']
-        if 'rotate' in path:
-            rotation_angle = request.data.get('rotation_angle') or None
-            if rotation_angle is None:
-                return Response('Please provide the rotation angle.', status=status.HTTP_400_BAD_REQUEST)
-            # rotate image
-        elif 'convert-pdf-to-image' in path:
-            # convert_pdf_to_image
-            pass
         serializer = DocumentProcessingSerializer(data=request.data)
         if serializer.is_valid():
-            print(serializer.data)
-        return Response('OK')
+            path = request.path
+            id = request.data['id']
+
+            if 'rotate' in path:
+                rotation_angle = float(request.data.get('rotation_angle'))
+                if rotation_angle is None:
+                    return Response({'error': 'Please provide the rotation angle.'}, status=status.HTTP_400_BAD_REQUEST)
+                rotated_img = rotate_img(id, rotation_angle)
+                return Response({'rotated_image':rotated_img}, status=status.HTTP_200_OK)
+
+            elif 'convert-pdf-to-image' in path:
+                pass
+
+        return Response({'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
