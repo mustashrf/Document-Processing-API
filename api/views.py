@@ -89,8 +89,7 @@ def encode_img(img):
     encoded_img = base64.b64encode(buffered.getvalue())
     return encoded_img
 
-def rotate_img(img_id, rotation_angle):
-    instance = ImageDocument.objects.get(id=img_id)
+def rotate_img(instance, rotation_angle):
     img = Image.open(instance.file)
     rotated_img = img.rotate(rotation_angle, expand=True)
     return encode_img(rotated_img)
@@ -110,8 +109,14 @@ class DocumentProcessingView(APIView):
                 rotation_angle = float(request.data.get('rotation_angle'))
                 if rotation_angle is None:
                     return Response({'error': 'Please provide the rotation angle.'}, status=status.HTTP_400_BAD_REQUEST)
-                rotated_img = rotate_img(id, rotation_angle)
-                return Response({'rotated_image':rotated_img}, status=status.HTTP_200_OK)
+                try:
+                    instance = ImageDocument.objects.get(id=id)
+                    if instance is None:
+                        return Response('Not found!', status=status.HTTP_404_NOT_FOUND)
+                    rotated_img = rotate_img(instance, rotation_angle)
+                    return Response({'rotated_image':rotated_img}, status=status.HTTP_200_OK)
+                except:
+                    return Response({'error':'Not found!'}, status=status.HTTP_404_NOT_FOUND)
 
             elif 'convert-pdf-to-image' in path:
                 pass
