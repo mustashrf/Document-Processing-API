@@ -52,11 +52,12 @@ class ImageDocumentView(generics.GenericAPIView):
             return Response(serializer.data)
     
     def delete(self, request, pk):
-        instance = self.get_queryset().get(pk=pk)
-        if instance:
+        try:
+            instance = self.get_queryset().get(pk=pk)
             instance.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response({'error':'Not found!'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'msg':'File deleted.'}, status=status.HTTP_204_NO_CONTENT)
+        except:
+            return Response({'error':'Not found!'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class PDFDocumentView(generics.GenericAPIView):
@@ -76,14 +77,15 @@ class PDFDocumentView(generics.GenericAPIView):
             return Response(serializer.data)
     
     def delete(self, request, pk):
-        instance = self.get_queryset().get(pk=pk)
-        if instance:
+        try:
+            instance = self.get_queryset().get(pk=pk)
             instance.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response({'error':'Not found!'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'msg':'File deleted.'}, status=status.HTTP_204_NO_CONTENT)
+        except:
+            return Response({'error':'Not found!'}, status=status.HTTP_404_NOT_FOUND)
 
 def encode_img(img):
-    img.show()
+    # img.show()
     buffered = io.BytesIO()
     img.save(buffered, format="png")
     encoded_img = base64.b64encode(buffered.getvalue())

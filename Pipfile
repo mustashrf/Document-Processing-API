@@ -8,6 +8,8 @@ django = "*"
 djangorestframework = "*"
 pillow = "*"
 pymupdf = "*"
+pytest = "*"
+pytest-django = "*"
 
 [dev-packages]
 
