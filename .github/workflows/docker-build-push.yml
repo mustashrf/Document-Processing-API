@@ -19,10 +19,10 @@ jobs:
       run: docker build -t $IMAGE_NAME .
 
     - name: Log in to Docker Hub
-      run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_token }}
+      run: docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Tag Docker image
-      run: docker tag $IMAGE_NAME ${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:latest
+      run: docker tag $IMAGE_NAME ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:latest
 
     - name: Push Docker image
-      run: docker push ${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:latest
+      run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:latest
